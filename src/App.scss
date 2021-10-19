@@ -1,7 +1,5 @@
 @import '_setting.scss';
 
-
-
 body {
   font-family: 'Source Sans Pro', sans-serif;
   margin: 0;
@@ -11,8 +9,7 @@ body {
 
 .App {
   height: 100vh;
-  display: grid;
-  grid-template-rows: 40px 50px 1fr;
+  overflow: hidden;
   line-height: 1.3em;
   background-color: $board-bg-color;
 }
