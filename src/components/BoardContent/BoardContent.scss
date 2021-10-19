@@ -1,9 +1,14 @@
 @import '_setting.scss';
 
 .board-content {
+  display: flex;
   height: $board-content-height;
   overflow-x: auto;
   overflow-y: hidden;
+  &:after {
+    content: '';
+    flex: 0 0 $gap;
+  }
   &::-webkit-scrollbar {
     -webkit-appearance: none;
   }
@@ -21,7 +26,7 @@
   }
   .add-new-column {
     width: 250px;
-    height: 32px;
+    max-width: 250px;
     line-height: 32px;
     padding: 4px 0px 4px 15px;
     margin-left: $gap;
@@ -31,6 +36,30 @@
     &:hover {
       background-color: hsla(0, 0%, 100%, 0.34);
       cursor: pointer;
+    }
+  }
+  .enter-new-column {
+    width: 250px;
+    max-width: 250px;
+    background-color: $column-bg-color;
+    line-height: 32px;
+    padding: 4px 0px 4px 15px;
+    margin-left: $gap;
+    border-radius: $column-border-radius;
+    .input-enter-new-column {
+      margin: 5px 0;
+    }
+    span.cancel-new-column {
+      margin-left: $gap;
+      cursor: pointer;
+
+      i {
+        font-size: 18px;
+        color: $alert-danger;
+        &:hover {
+          color: darken($alert-danger, 10);
+        }
+      }
     }
   }
 }
