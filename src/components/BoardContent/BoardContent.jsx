@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './BoardContent.scss';
 import Column from 'components/Column/Column';
 import { initialData } from 'actions/initialData';
@@ -20,12 +20,12 @@ function BoardContent(props) {
   const [board, setBoard] = useState({});
   const [columns, setColumns] = useState([]);
   const [openNewColumn, setOpenNewColumn] = useState(false);
-  const [newColumnTitle, setNewColumnTitle] = useState('');
-  const newColumnInputRef = useRef(null);
+  const toggleOpenNewColumnForm = () => setOpenNewColumn(!openNewColumn);
 
-  const onNewColumnTitleChange = useCallback((e) => {
-    setNewColumnTitle(e.target.value);
-  }, []);
+  const [newColumnTitle, setNewColumnTitle] = useState('');
+  const onNewColumnTitleChange = (e) => setNewColumnTitle(e.target.value);
+
+  const newColumnInputRef = useRef(null);
 
   useEffect(() => {
     const boardFromDB = initialData.boards.find(
@@ -69,10 +69,6 @@ function BoardContent(props) {
       currentColumn.cardOrder = currentColumn.cards.map((i) => i.id);
       setColumns(newColumns);
     }
-  };
-
-  const toggleOpenNewColumnForm = () => {
-    setOpenNewColumn(!openNewColumn);
   };
 
   const addNewColumn = () => {
@@ -123,6 +119,7 @@ function BoardContent(props) {
     setBoard(newBoard);
   };
 
+
   return (
     <div className="board-content">
       <Container
@@ -146,7 +143,6 @@ function BoardContent(props) {
           </Draggable>
         ))}
       </Container>
-
       <BootstrapContainer className="trello-container">
         {!openNewColumn && (
           <Row>
@@ -173,10 +169,7 @@ function BoardContent(props) {
               <Button variant="success" size="sm" onClick={addNewColumn}>
                 Add column
               </Button>
-              <span
-                className="cancel-new-column"
-                onClick={toggleOpenNewColumnForm}
-              >
+              <span className="cancel-icon" onClick={toggleOpenNewColumnForm}>
                 <i className="fa fa-trash icon" />
               </span>
             </Col>
