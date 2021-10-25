@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import './BoardContent.scss';
 import Column from 'components/Column/Column';
-import { isEmpty } from 'lodash';
+import { isEmpty, cloneDeep } from 'lodash';
 import { Container, Draggable } from 'react-smooth-dnd';
 import { mapOrder } from 'utilities/sorts';
 import { applyDrag } from 'utilities/dragDrop';
@@ -12,7 +12,13 @@ import {
   Form,
   Button,
 } from 'react-bootstrap';
-import { fetchBoardDetail, createNewColumn } from 'actions/api';
+import {
+  fetchBoardDetail,
+  createNewColumn,
+  updateBoard,
+  updateColumn,
+  updateCard,
+} from 'actions/api';
 
 BoardContent.propTypes = {};
 
@@ -46,26 +52,57 @@ function BoardContent() {
     return <div className="not-found">Board not found</div>;
   }
 
-  const onColumnDrop = (dropResult) => {
-    let newColumns = [...columns];
+  const onColumnDrop = async (dropResult) => {
+    let newColumns = cloneDeep(columns);
     newColumns = applyDrag(newColumns, dropResult);
 
-    let newBoard = { ...board };
+    let newBoard = cloneDeep(board);
     newBoard.columnOrder = newColumns.map((c) => c._id);
     newBoard.columns = newColumns;
-
     setColumns(newColumns);
     setBoard(newBoard);
+    // Call api update columnOrder in board details
+    try {
+      await updateBoard(newBoard._id, newBoard);
+    } catch (error) {
+      setColumns(columns);
+      setBoard(board);
+    }
   };
 
-  const onCardDrop = (columnId, dropResult) => {
-    if (dropResult.removedIndex !== null || dropResult.addedIndex !== null) {
-      let newColumns = [...columns];
+  const onCardDrop = async (columnId, dropResult) => {
+    if (dropResult.removedIndex || dropResult.addedIndex) {
+      let newColumns = cloneDeep(columns);
 
       let currentColumn = newColumns.find((c) => c._id === columnId);
       currentColumn.cards = applyDrag(currentColumn.cards, dropResult);
       currentColumn.cardOrder = currentColumn.cards.map((i) => i._id);
       setColumns(newColumns);
+
+      if (dropResult.removedIndex && dropResult.addedIndex) {
+        // Move card inside its column
+        try {
+          await updateColumn(currentColumn._id, currentColumn);
+        } catch (error) {
+          setColumns(columns);
+        }
+      } else {
+        // Move card between its two columns
+        try {
+          await updateColumn(currentColumn._id, currentColumn);
+        } catch (error) {
+          setColumns(columns);
+        }
+        if (dropResult.addedIndex) {
+          let currentCard = cloneDeep(dropResult.payload);
+          currentCard.columnId = currentColumn._id;
+          try {
+            await updateCard(currentCard._id, currentCard);
+          } catch (error) {
+            setColumns(columns);
+          }
+        }
+      }
     }
   };
 
@@ -80,10 +117,10 @@ function BoardContent() {
     };
     const column = await createNewColumn(newColumnToAdd);
 
-    let newColumns = [...columns];
+    let newColumns = cloneDeep(columns);
     newColumns.push(column);
 
-    let newBoard = { ...board };
+    let newBoard = cloneDeep(board);
     newBoard.columnOrder = newColumns.map((c) => c._id);
     newBoard.columns = newColumns;
 
@@ -97,7 +134,7 @@ function BoardContent() {
   const onUpdateColumnState = (newColumnUpdate) => {
     const columnIdToUpdate = newColumnUpdate._id;
 
-    let newColumns = [...columns];
+    let newColumns = cloneDeep(columns);
     const columnIndexToUpdate = newColumns.findIndex(
       (i) => i._id === columnIdToUpdate
     );
@@ -108,7 +145,7 @@ function BoardContent() {
       //Update column
       newColumns.splice(columnIndexToUpdate, 1, newColumnUpdate);
     }
-    let newBoard = { ...board };
+    let newBoard = cloneDeep(board);
     newBoard.columnOrder = newColumns.map((c) => c._id);
     newBoard.columns = newColumns;
 
