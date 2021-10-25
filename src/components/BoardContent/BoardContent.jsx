@@ -12,7 +12,7 @@ import {
   Form,
   Button,
 } from 'react-bootstrap';
-import { fetchBoardDetail } from 'actions/api';
+import { fetchBoardDetail, createNewColumn } from 'actions/api';
 
 BoardContent.propTypes = {};
 
@@ -28,7 +28,7 @@ function BoardContent() {
   const newColumnInputRef = useRef(null);
 
   useEffect(() => {
-    const boardId = '617553cbd5ada8f2c313f7e4';
+    const boardId = '6176bfe63144a90cc8c10694';
     fetchBoardDetail(boardId).then((board) => {
       setBoard(board);
       setColumns(mapOrder(board.columns, board.columnOrder, '_id'));
@@ -69,20 +69,19 @@ function BoardContent() {
     }
   };
 
-  const addNewColumn = () => {
+  const addNewColumn = async () => {
     if (!newColumnTitle) {
       newColumnInputRef.current.focus();
       return;
     }
     const newColumnToAdd = {
-      _id: Math.random().toString(36).substr(2, 5),
       boardId: board._id,
       title: newColumnTitle.trim(),
-      cardOrder: [],
-      cards: [],
     };
+    const column = await createNewColumn(newColumnToAdd);
+
     let newColumns = [...columns];
-    newColumns.push(newColumnToAdd);
+    newColumns.push(column);
 
     let newBoard = { ...board };
     newBoard.columnOrder = newColumns.map((c) => c._id);
@@ -95,7 +94,7 @@ function BoardContent() {
     toggleOpenNewColumnForm();
   };
 
-  const onUpdateColumn = (newColumnUpdate) => {
+  const onUpdateColumnState = (newColumnUpdate) => {
     const columnIdToUpdate = newColumnUpdate._id;
 
     let newColumns = [...columns];
@@ -135,7 +134,7 @@ function BoardContent() {
             <Column
               column={column}
               onCardDrop={onCardDrop}
-              onUpdateColumn={onUpdateColumn}
+              onUpdateColumnState={onUpdateColumnState}
             />
           </Draggable>
         ))}

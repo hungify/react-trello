@@ -12,9 +12,9 @@ import {
   saveContentAfterPressEnter,
   selectAllInlineText,
 } from 'utilities/contentEditable';
-
+import { createNewCard, updateColumn } from 'actions/api';
 function Column(props) {
-  const { column, onCardDrop, onUpdateColumn } = props;
+  const { column, onCardDrop, onUpdateColumnState } = props;
 
   const cards = mapOrder(column.cards, column.cardOrder, '_id');
 
@@ -43,37 +43,44 @@ function Column(props) {
     }
   }, [openNewCard]);
 
-  const onConfirmModalAction = (type) => {
+  // Remove column
+  const onConfirmModalAction = async (type) => {
     if (type === MODAL_ACTION_CONFIRM) {
       const newColumn = { ...column, _destroy: true };
-      onUpdateColumn(newColumn);
+      const updatedColumn = await updateColumn(newColumn._id, newColumn);
+      onUpdateColumnState(updatedColumn);
     }
     toggleShowConfirmModal();
   };
 
-  const handleColumnTitleBlur = () => {
-    const newColumn = { ...column, title: columnTitle };
-    onUpdateColumn(newColumn);
+  // Update column title
+  const handleColumnTitleBlur = async () => {
+    if (columnTitle !== column.title) {
+      const newColumn = { ...column, title: columnTitle };
+      const updatedColumn = await updateColumn(newColumn._id, newColumn);
+
+      updatedColumn.cards = newColumn.cards;
+      onUpdateColumnState(updatedColumn);
+    }
   };
 
-  const addNewCard = () => {
+  const addNewCard = async () => {
     if (!newCardTitle) {
       newCardTextareaRef.current.focus();
       return;
     }
     const newCardToAdd = {
-      _id: Math.random().toString(36).substr(2, 5),
       boardId: column.boardId,
       columnId: column._id,
       title: newCardTitle.trim(),
-      cover: null,
     };
+    const card = await createNewCard(newCardToAdd);
 
     let newColumn = cloneDeep(column);
-    newColumn.cards.push(newCardToAdd);
-    newColumn.cardOrder.push(newCardToAdd._id);
+    newColumn.cards.push(card);
+    newColumn.cardOrder.push(card._id);
 
-    onUpdateColumn(newColumn);
+    onUpdateColumnState(newColumn);
     setNewCardTitle('');
     toggleOpenNewCardForm();
   };
