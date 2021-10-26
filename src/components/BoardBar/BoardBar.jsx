@@ -1,11 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Col, Container as BootstrapContainer, Row } from 'react-bootstrap';
 import './BoardBar.scss';
 
-BoardBar.propTypes = {};
-
-function BoardBar(props) {
+function BoardBar() {
   return (
     <nav className="navbar-board">
       <BootstrapContainer className="trello-container">

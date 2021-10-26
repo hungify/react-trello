@@ -20,8 +20,6 @@ import {
   updateCard,
 } from 'actions/api';
 
-BoardContent.propTypes = {};
-
 function BoardContent() {
   const [board, setBoard] = useState({});
   const [columns, setColumns] = useState([]);
