@@ -41,7 +41,9 @@ body {
     outline: none !important;
     box-shadow: none !important;
   }
-
+  a {
+    text-decoration: none;
+  }
   .content-editable {
     background-color: inherit;
     border: none;
@@ -62,5 +64,8 @@ body {
         color: darken($alert-danger, 10);
       }
     }
+  }
+  .col-no-padding {
+    padding: 0;
   }
 }
