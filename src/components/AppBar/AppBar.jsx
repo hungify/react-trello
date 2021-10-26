@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import './AppBar.scss';
 import {
   Col,
@@ -9,9 +8,7 @@ import {
   Row,
 } from 'react-bootstrap';
 
-AppBar.propTypes = {};
-
-function AppBar(props) {
+function AppBar() {
   return (
     <nav className="navbar-app">
       <BootstrapContainer className="trello-container">

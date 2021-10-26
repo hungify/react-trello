@@ -13,6 +13,7 @@ import {
   selectAllInlineText,
 } from 'utilities/contentEditable';
 import { createNewCard, updateColumn } from 'actions/api';
+
 function Column(props) {
   const { column, onCardDrop, onUpdateColumnState } = props;
 
